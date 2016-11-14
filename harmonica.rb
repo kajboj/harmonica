@@ -1,6 +1,6 @@
-class Harmonica
-  NOTES = %w(C Db D Eb E F Gb G Ab A Bb B)
+require './note'
 
+class Harmonica
   INTERVALS = {
                #   1    2    3    4    5    6    7    8    9   10
     blow_bend2: [nil, nil, nil, nil, nil, nil, nil, nil, nil,  -2], # relative to blow
@@ -19,75 +19,38 @@ class Harmonica
   end
 
   def blow_bends2
-    add_intervals(blows, INTERVALS[:blow_bend2])
+    add_intervals(blows, :blow_bend2)
   end
 
   def blow_bends1
-    add_intervals(blows, INTERVALS[:blow_bend1])
+    add_intervals(blows, :blow_bend1)
   end
 
   def blows
     note = @key
     INTERVALS[:blow].inject([]) do |a, interval|
-      note = add_interval(note, interval)
+      note = Note.add_interval(note, interval)
       a << note
     end
   end
 
   def draws
-    add_intervals(blows, INTERVALS[:draw])
+    add_intervals(blows, :draw)
   end
 
   def draw_bends1
-    add_intervals(draws, INTERVALS[:draw_bend1])
+    add_intervals(draws, :draw_bend1)
   end
 
   def draw_bends2
-    add_intervals(draws, INTERVALS[:draw_bend2])
+    add_intervals(draws, :draw_bend2)
   end
 
   def draw_bends3
-    add_intervals(draws, INTERVALS[:draw_bend3])
+    add_intervals(draws, :draw_bend3)
   end
 
-  def add_intervals(notes, intervals)
-    notes.zip(intervals).inject([]) do |a, (blow_note, interval)|
-      note = add_interval(blow_note, interval)
-      a << note
-    end
-  end
-
-  def add_interval(note, semitones)
-    return nil if semitones.nil?
-    index = (NOTES.index(note) + semitones) % NOTES.size
-    NOTES[index]
+  def add_intervals(notes, intervals_symbol)
+    Note.add_intervals(notes, INTERVALS[intervals_symbol])
   end
 end
-
-class HarmonicaPrinter
-  def self.to_string(harp)
-    [
-      harp.blow_bends2,
-      harp.blow_bends1,
-      harp.blows,
-      (1..10),
-      harp.draws,
-      harp.draw_bends1,
-      harp.draw_bends2,
-      harp.draw_bends3
-    ].map do |row|
-      join(row)
-    end.join("\n")
-  end
-
-  def self.join(things)
-    things.map do |thing|
-      thing.to_s.ljust(2).rjust(4)
-    end.join
-  end
-end
-
-
-harp = Harmonica.new('C')
-
-puts HarmonicaPrinter.to_string(harp)
