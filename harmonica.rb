@@ -1,4 +1,5 @@
 require './note'
+require './hole'
 
 class Harmonica
   INTERVALS = {
@@ -27,9 +28,9 @@ class Harmonica
   end
 
   def blows
-    note = @key
+    note = Note.new(@key, 0)
     INTERVALS[:blow].inject([]) do |a, interval|
-      note = Note.add_interval(note, interval)
+      note = note.add_interval(interval)
       a << note
     end
   end
@@ -52,5 +53,23 @@ class Harmonica
 
   def add_intervals(notes, intervals_symbol)
     Note.add_intervals(notes, INTERVALS[intervals_symbol])
+  end
+
+  def holes
+    holes = []
+
+    draws.each.with_index do |draw, index|
+      holes << Hole.new((index+1).to_s, draw)
+    end
+
+    blows.each.with_index do |draw, index|
+      holes << Hole.new("+"+(index+1).to_s, draw)
+    end
+
+    holes = holes.sort_by do |hole|
+      hole.note.octave*100 + hole.note.index
+    end
+
+    holes
   end
 end

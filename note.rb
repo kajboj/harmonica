@@ -1,35 +1,51 @@
+require './nil_note'
+
 class Note
   NOTES = %w(C Db D Eb E F Gb G Ab A Bb B)
 
-  def self.add_interval(note, semitones)
-    return nil if semitones.nil?
-    index = (NOTES.index(note) + semitones) % NOTES.size
-    NOTES[index]
+  attr_reader :note, :octave
+
+  def initialize(note, octave)
+    @note, @octave = note, octave
+  end
+
+  def add_interval(semitones)
+    return NilNote.new if semitones.nil?
+    if semitones == 0
+      self
+    elsif semitones > 0
+      self.add_semitone.add_interval(semitones-1)
+    else
+      self.sub_semitone.add_interval(semitones+1)
+    end
+  end
+
+  def add_semitone
+    if note == 'B'
+      Note.new('C', octave + 1)
+    else
+      next_index = index + 1
+      Note.new(NOTES[next_index], octave)
+    end
+  end
+
+  def sub_semitone
+    if note == 'C'
+      Note.new('B', octave - 1)
+    else
+      prev_index = index - 1
+      Note.new(NOTES[prev_index], octave)
+    end
+  end
+
+  def index
+    NOTES.index(note)
   end
 
   def self.add_intervals(notes, intervals)
     notes.zip(intervals).inject([]) do |a, (blow_note, interval)|
-      note = add_interval(blow_note, interval)
+      note = blow_note.add_interval(interval)
       a << note
     end
-  end
-
-  def self.interval(hole1, hole2)
-    harp = Harmonica.new('C')
-
-    harp.interval(hole1)
-  end
-
-  def self.holes_to_intervals(holes)
-    return nil if holes.empty?
-
-    hole = holes[0]
-    intervals = [0]
-    holes.each do |next_hole|
-      intervals << interval(hole, next_hole)
-      hole = next_hole
-    end
-
-    intervals
   end
 end

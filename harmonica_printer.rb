@@ -1,14 +1,14 @@
 class HarmonicaPrinter
   def self.to_string(harp)
     [
-      harp.blow_bends2,
-      harp.blow_bends1,
-      harp.blows,
+      harp.blow_bends2.map(&:note),
+      harp.blow_bends1.map(&:note),
+      harp.blows.map(&:note),
       (1..10),
-      harp.draws,
-      harp.draw_bends1,
-      harp.draw_bends2,
-      harp.draw_bends3
+      harp.draws.map(&:note),
+      harp.draw_bends1.map(&:note),
+      harp.draw_bends2.map(&:note),
+      harp.draw_bends3.map(&:note)
     ].map do |row|
       join(row)
     end.join("\n")
