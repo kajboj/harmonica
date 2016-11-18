@@ -56,20 +56,30 @@ class Harmonica
   end
 
   def holes
-    holes = []
-
-    draws.each.with_index do |draw, index|
-      holes << Hole.new((index+1).to_s, draw)
-    end
-
-    blows.each.with_index do |draw, index|
-      holes << Hole.new("+"+(index+1).to_s, draw)
-    end
+    holes = create_holes(draws, "X") +
+      create_holes(blows, "+X") +
+      create_holes(blow_bends1, "+X'") +
+      create_holes(blow_bends2, "+X\"") +
+      create_holes(draw_bends1, "X'") +
+      create_holes(draw_bends2, "X\"") +
+      create_holes(draw_bends3, "X\"'")
 
     holes = holes.sort_by do |hole|
       hole.note.octave*100 + hole.note.index
     end
 
     holes
+  end
+
+  private
+
+  def create_holes(notes, template)
+    holes = []
+    notes.map.with_index do |note, index|
+      if !note.nil?
+        holes << Hole.new(template.gsub('X', (index+1).to_s), note)
+      end
+    end
+    return holes
   end
 end

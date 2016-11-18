@@ -6,4 +6,8 @@ class NilNote
   def octave
     -1
   end
+
+  def nil?
+    true
+  end
 end
